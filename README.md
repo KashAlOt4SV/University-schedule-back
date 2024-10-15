@@ -10,11 +10,11 @@
 
 После того, как мы установили pgAdmin4 + postgresql нам необходимо локально на нашей системе создать таблицу schedule_db(https://support.russianit.ru/books/pomoshchnik-arbitrazhnogo-upravliaiushchego/page/nastroika-subd-postgresql). При скачивании postgres # ОЧЕНЬ! # важно запомнить пароль, который вы указываете. Имя пользователя желательно оставить postgres. Пароль после скачивания вы после изменяете в файле db.js.
 
-После установки pgAdmin4 для создания бд необходимо:
+# После установки pgAdmin4 для создания бд необходимо:
 
 ![Снимок экрана 2024-10-15 055734](https://github.com/user-attachments/assets/f3334aac-be64-47db-97fc-27c99716db18) -> ![image](https://github.com/user-attachments/assets/08549b21-e604-4f11-b8c3-6776c8b9bfdd). Тут в пароле вводить пароль, который использовали при скачивании postgres.
 
-Поздравляю, у нас есть сервер, что дальше? Дальше мы создаем нашу БД:
+# Поздравляю, у нас есть сервер, что дальше? Дальше мы создаем нашу БД:
 ![Снимок экрана 2024-10-15 055921](https://github.com/user-attachments/assets/aa8cf214-add2-47b8-9335-62ccb3bcf4aa) -> ![image](https://github.com/user-attachments/assets/675af30f-64de-4127-b87b-604d96f35170). 
 
 # Отлично, теперь есть и бд, дальше нам нужно её настроить:
