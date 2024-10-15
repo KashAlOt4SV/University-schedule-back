@@ -3,7 +3,7 @@
 
 Установить node.js(https://nodejs.org/en/download/package-manager)
 
-Для управления/просмотра локальной бд:
+# Для управления/просмотра локальной бд:
 Установить postgresql(https://www.postgresql.org/download/)
 
 Установить pgAdmin4(https://www.pgadmin.org/download/pgadmin-4-windows/). 
