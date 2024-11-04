@@ -1,5 +1,5 @@
 # Для установки и успешного запуска бэка на нашей системе должны иметься следующие вещи:
-Установить git (https://github.com/facebook/create-react-app). 
+Установить git (https://git-scm.com/downloads). 
 
 Установить node.js(https://nodejs.org/en/download/package-manager)
 
