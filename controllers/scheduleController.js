@@ -1,22 +1,21 @@
-import Schedule from '../models/schedule.js';
+import Schedule from '../models/Schedule.js';
 
-// Создание нового расписания
-export const createSchedule = async (req, res) => {
-  const { groupName, subject, teacher, dayOfWeek, timeSlot } = req.body;
-
+// Получение расписания
+export const getSchedule = async (req, res) => {
   try {
-    const schedule = await Schedule.create({ groupName, subject, teacher, dayOfWeek, timeSlot });
-    res.status(201).json(schedule);
+    const schedule = await Schedule.findAll();
+    res.json(schedule);
   } catch (err) {
     res.status(500).json({ message: 'Ошибка на сервере', error: err.message });
   }
 };
 
-// Получение всех расписаний
-export const getSchedules = async (req, res) => {
+// Добавление нового расписания
+export const createSchedule = async (req, res) => {
+  const { day, time, groupId, disciplineId, teacherId, classType } = req.body;
   try {
-    const schedules = await Schedule.findAll();
-    res.json(schedules);
+    const schedule = await Schedule.create({ day, time, groupId, disciplineId, teacherId, classType });
+    res.status(201).json(schedule);
   } catch (err) {
     res.status(500).json({ message: 'Ошибка на сервере', error: err.message });
   }
@@ -25,39 +24,38 @@ export const getSchedules = async (req, res) => {
 // Обновление расписания
 export const updateSchedule = async (req, res) => {
   const { id } = req.params;
-  const { groupName, subject, teacher, dayOfWeek, timeSlot } = req.body;
+  const { day, time, groupId, disciplineId, teacherId, classType } = req.body;
 
   try {
     const schedule = await Schedule.findByPk(id);
     if (!schedule) {
-      return res.status(404).json({ message: 'Расписание не найдено' });
+      return res.status(404).json({ message: 'Запись расписания не найдена' });
     }
+    schedule.day = day;
+    schedule.time = time;
+    schedule.groupId = groupId;
+    schedule.disciplineId = disciplineId;
+    schedule.teacherId = teacherId;
+    schedule.classType = classType;
 
-    schedule.groupName = groupName;
-    schedule.subject = subject;
-    schedule.teacher = teacher;
-    schedule.dayOfWeek = dayOfWeek;
-    schedule.timeSlot = timeSlot;
     await schedule.save();
-
     res.json(schedule);
   } catch (err) {
     res.status(500).json({ message: 'Ошибка на сервере', error: err.message });
   }
 };
 
-// Удаление расписания
+// Удаление записи расписания
 export const deleteSchedule = async (req, res) => {
   const { id } = req.params;
 
   try {
     const schedule = await Schedule.findByPk(id);
     if (!schedule) {
-      return res.status(404).json({ message: 'Расписание не найдено' });
+      return res.status(404).json({ message: 'Запись расписания не найдена' });
     }
-
     await schedule.destroy();
-    res.json({ message: 'Расписание удалено' });
+    res.json({ message: 'Запись расписания удалена' });
   } catch (err) {
     res.status(500).json({ message: 'Ошибка на сервере', error: err.message });
   }
