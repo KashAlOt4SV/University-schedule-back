@@ -1,53 +1,73 @@
 // controllers/TeacherController.js
-
-import Teacher from '../models/Teacher.js'; // Модель преподавателя
+import { Teacher, Discipline } from '../models/index.js';  // Импортируем модели из index.js
+import sequelize from "../config/db.js";  // Подключаем sequelize для транзакций
 
 // Получение всех преподавателей
 export const getTeachers = async (req, res) => {
   try {
-    const teachers = await Teacher.findAll(); // Получаем всех преподавателей из базы данных
-    res.json(teachers); // Отправляем ответ с данными
+    const teachers = await Teacher.findAll();  // Получаем всех преподавателей
+    res.json(teachers);  // Отправляем ответ с данными
   } catch (err) {
     res.status(500).json({ message: 'Ошибка при получении преподавателей', error: err.message });
   }
 };
 
-// Создание нового преподавателя
-export const createTeacher = async (req, res) => {
-  const { name, discipline, group } = req.body; // Данные, которые передаются в теле запроса
-
-  try {
-    // Создаем нового преподавателя
-    const teacher = await Teacher.create({ name, discipline, group });
-    res.status(201).json(teacher); // Возвращаем созданного преподавателя
-  } catch (err) {
-    res.status(500).json({ message: 'Ошибка при создании преподавателя', error: err.message });
-  }
-};
-
-// Обновление данных преподавателя
 export const updateTeacher = async (req, res) => {
-  const { id } = req.params; // Получаем ID преподавателя из параметров запроса
-  const { name, discipline, group } = req.body; // Данные, которые передаются в теле запроса
+  const { id } = req.params; // Получаем ID преподавателя
+  const { fio, disciplines } = req.body; // Получаем данные для обновления
+
+  const t = await sequelize.transaction(); // Используем транзакцию для целостности данных
 
   try {
-    const teacher = await Teacher.findByPk(id); // Ищем преподавателя по ID
+    // Находим преподавателя по ID
+    const teacher = await Teacher.findByPk(id, {
+      include: [Discipline]  // Загружаем дисциплины с преподавателем
+    });
 
     if (!teacher) {
       return res.status(404).json({ message: 'Преподаватель не найден' });
     }
 
-    // Обновляем данные преподавателя
-    teacher.name = name || teacher.name;
-    teacher.discipline = discipline || teacher.discipline;
-    teacher.group = group || teacher.group;
+    // Обновляем ФИО
+    teacher.FIO = fio || teacher.FIO;
 
-    await teacher.save(); // Сохраняем изменения в базе данных
-    res.json(teacher); // Возвращаем обновленные данные
-  } catch (err) {
-    res.status(500).json({ message: 'Ошибка при обновлении преподавателя', error: err.message });
+    // Если дисциплины переданы, обновляем их
+    if (disciplines && Array.isArray(disciplines)) {
+      // Получаем дисциплины по их названию
+      const disciplineInstances = await Discipline.findAll({
+        where: {
+          name: {
+            [Sequelize.Op.in]: disciplines  // Находим дисциплины по их названию
+          },
+        },
+        transaction: t  // Указываем транзакцию
+      });
+
+      // Если не все дисциплины существуют, возвращаем ошибку
+      if (disciplineInstances.length !== disciplines.length) {
+        return res.status(400).json({ message: 'Одна или несколько дисциплин не найдены' });
+      }
+
+      // Удаляем старые дисциплины и добавляем новые через таблицу связи
+      await teacher.setDisciplines([], { transaction: t });
+      await teacher.addDisciplines(disciplineInstances, { transaction: t });
+    }
+
+    // Сохраняем изменения
+    await teacher.save({ transaction: t });
+
+    // Подтверждаем транзакцию
+    await t.commit();
+
+    res.json(teacher); // Возвращаем обновленного преподавателя
+  } catch (error) {
+    // Если произошла ошибка, откатываем транзакцию
+    await t.rollback();
+    console.error('Error updating teacher:', error);
+    res.status(500).json({ message: 'Ошибка при обновлении преподавателя', error });
   }
 };
+
 
 // Удаление преподавателя
 export const deleteTeacher = async (req, res) => {

@@ -1,29 +1,31 @@
+// models/Teacher.js
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/db.js'; // Импорт модели соединения с БД
-import Discipline from './Discipline.js';
+import sequelize from '../config/db.js';  // Импортируем соединение с БД
 
-// Модель преподавателя для таблицы преподавателей
 const Teacher = sequelize.define('Teacher', {
   userId: {
     type: DataTypes.INTEGER,
     references: {
-      model: 'User', // Название таблицы пользователей
+      model: 'Users',
       key: 'id',
     },
     allowNull: false,
   },
   email: {
     type: DataTypes.STRING,
-    allowNull: false, // Обязательное поле
+    allowNull: false,  // Поле email обязательно
   },
-  // Можно добавить дополнительные поля для описания преподавателя
-  Disciplines: {
+  FIO: {
     type: DataTypes.STRING,
-    references: {
-      model: 'Discipline', // Название таблицы групп
-      key: 'name',
-    },
+    allowNull: false,  // Поле FIO обязательно
+  },
+  specialties: {
+    type: DataTypes.STRING,
     allowNull: true,
+  },
+  Disciplines: {
+    type: DataTypes.JSONB,  // Здесь мы храним данные как JSONB (массив дисциплин)
+    allowNull: true,  // Можно оставить пустым
   },
 });
 

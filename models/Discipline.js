@@ -1,7 +1,8 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/db.js'; // Импорт модели соединения с БД
+import sequelize from '../config/db.js'; // Подключение к БД
+import Teacher from './Teacher.js';
 
-// Модель дисциплины для таблицы дисциплин
+// Определение модели Discipline
 const Discipline = sequelize.define('Discipline', {
   id: {
     type: DataTypes.INTEGER,
@@ -16,7 +17,6 @@ const Discipline = sequelize.define('Discipline', {
     type: DataTypes.TEXT,
     allowNull: true,
   },
-  // Пример связи с типом занятия (периодически дисциплина будет иметь несколько видов занятий)
   classTypes: {
     type: DataTypes.JSONB, // Массив или JSON для типов занятий
     allowNull: false,

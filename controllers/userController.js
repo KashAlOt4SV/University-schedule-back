@@ -1,5 +1,4 @@
-// controllers/userController.js
-import { User, Student, Teacher, Schedule, Group, Discipline, ClassType } from '../models/index.js'; // Импортируем все модели из index.js
+import { User, Student, Teacher } from '../models/index.js'; // Импортируем все модели
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import sequelize from "../config/db.js"; // Подключение к БД
@@ -10,6 +9,9 @@ export const createUser = async (req, res) => {
   const t = await sequelize.transaction(); // Начинаем транзакцию
 
   try {
+    // Логируем входные данные для отслеживания ошибок
+    console.log('Received data:', { fio, email, password, role, group, specialties });
+
     // Создаем пользователя
     const newUser = await User.create(
       {
@@ -21,27 +23,29 @@ export const createUser = async (req, res) => {
       { transaction: t }
     );
 
-    
+    console.log('User created:', newUser);  // Логируем созданного пользователя
 
     // Проверяем роль и создаем запись в соответствующей таблице
     if (role === 'teacher') {
-      await Teacher.create(
+      // Для преподавателя добавляем данные в таблицу Teacher
+      const teacher = await Teacher.create(
         {
           userId: newUser.id,
           specialties,
-          email: newUser.email,
-          fio: newUser.fio
+          email: newUser.email,  // Используем email из созданного пользователя
+          FIO: newUser.fio,  // Заполняем FIO из таблицы User
         },
         { transaction: t }
       );
+      console.log('Teacher created:', teacher);  // Логируем созданного преподавателя
     } else if (role === 'student') {
       console.log('Creating student with email:', newUser.email); // Логирование для проверки
       await Student.create(
         {
           userId: newUser.id,
           group,
-          email: newUser.email,
-          fio: newUser.fio
+          email: newUser.email,  // Заполняем email из таблицы User
+          FIO: newUser.fio, // Заполняем FIO из таблицы User
         },
         { transaction: t }
       );
@@ -58,6 +62,7 @@ export const createUser = async (req, res) => {
     res.status(500).json({ message: 'Error creating user', error });
   }
 };
+
 
 
 

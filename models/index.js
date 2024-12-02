@@ -7,4 +7,8 @@ import Group from './Group.js';
 import Discipline from './Discipline.js';
 import ClassType from './ClassType.js';
 
+
+Teacher.belongsToMany(Discipline, { through: 'TeacherDisciplines' });
+Discipline.belongsToMany(Teacher, { through: 'TeacherDisciplines' });
+
 export { User, Student, Teacher, Schedule, Group, Discipline, ClassType };
