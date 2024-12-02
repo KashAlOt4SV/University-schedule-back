@@ -1,12 +1,17 @@
 import express from 'express';
-import { register, login } from '../controllers/authController.js';
+import { login } from '../controllers/authController.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
+import { createUser, getMe } from '../controllers/userController.js'; // Импортируем контроллеры
 
 const router = express.Router();
 
-// Регистрация нового пользователя
-router.post('/register', register);
-
 // Авторизация пользователя
 router.post('/login', login);
+
+// Создание пользователя
+router.post('/createUsers', authMiddleware, createUser);
+
+// Получение информации о пользователе
+router.get('/me', authMiddleware, getMe);
 
 export default router;

@@ -3,26 +3,12 @@ import sequelize from '../config/db.js'; // Импорт модели соеди
 
 // Модель студента для таблицы студентов
 const Student = sequelize.define('Student', {
-  id: {
+  userId: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
-  },
-  firstName: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  lastName: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  email: {
-    type: DataTypes.STRING,
-    unique: true,
-    allowNull: false,
-  },
-  group: {
-    type: DataTypes.STRING,
+    references: {
+      model: 'Users', // Название таблицы пользователей
+      key: 'id',
+    },
     allowNull: false,
   },
   // Дополнительные поля, которые могут быть нужны
@@ -31,6 +17,18 @@ const Student = sequelize.define('Student', {
     type: DataTypes.DATE,
     allowNull: true,
   },
+});
+
+Student.beforeCreate(async (admin) => {
+  if (admin.password) {
+    admin.password = await bcrypt.hash(admin.password, 10);
+  }
+});
+
+Student.beforeUpdate(async (admin) => {
+  if (admin.password) {
+    admin.password = await bcrypt.hash(admin.password, 10);
+  }
 });
 
 export default Student;

@@ -3,22 +3,12 @@ import sequelize from '../config/db.js'; // Импорт модели соеди
 
 // Модель преподавателя для таблицы преподавателей
 const Teacher = sequelize.define('Teacher', {
-  id: {
+  userId: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
-  },
-  firstName: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  lastName: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  email: {
-    type: DataTypes.STRING,
-    unique: true,
+    references: {
+      model: 'Users', // Название таблицы пользователей
+      key: 'id',
+    },
     allowNull: false,
   },
   // Можно добавить дополнительные поля для описания преподавателя
@@ -30,6 +20,18 @@ const Teacher = sequelize.define('Teacher', {
     type: DataTypes.JSONB, // Массив дисциплин, которые может вести преподаватель
     allowNull: true,
   },
+});
+
+Teacher.beforeCreate(async (admin) => {
+  if (admin.password) {
+    admin.password = await bcrypt.hash(admin.password, 10);
+  }
+});
+
+Teacher.beforeUpdate(async (admin) => {
+  if (admin.password) {
+    admin.password = await bcrypt.hash(admin.password, 10);
+  }
 });
 
 export default Teacher;

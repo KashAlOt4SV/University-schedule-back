@@ -1,30 +1,50 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../config/db.js'; // Импорт модели соединения с БД
+import { Sequelize, DataTypes } from 'sequelize';
+import bcrypt from 'bcrypt';
+import sequelize from '../config/db.js'; // Ваши настройки подключения к базе данных
 
-// Модель пользователя для таблицы пользователей
+// Модель для пользователей
 const User = sequelize.define('User', {
   id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
+    type: DataTypes.INTEGER,  // Тип данных для ID
+    allowNull: false,         // ID не может быть null
+    primaryKey: true,         // Этот столбец будет являться ключом
+    autoIncrement: true,      // Устанавливаем автоинкремент
   },
-  name: {
+  fio: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  email: {
+  role: {
     type: DataTypes.STRING,
+    allowNull: false,
+  },
+  email:{
+    type: DataTypes.STRING,
+    allowNull: false,
     unique: true,
-    allowNull: false,
   },
   password: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  role: {
-    type: DataTypes.ENUM('admin', 'dispatcher', 'student', 'head_of_department', 'academic_affairs','teacher'),
-    allowNull: false,
-  },
 });
+
+// Хэширование пароля перед сохранением
+User.beforeCreate(async (user) => {
+  if (user.password) {
+    user.password = await bcrypt.hash(user.password, 10); // Хэшируем пароль перед сохранением
+  }
+});
+
+User.beforeUpdate(async (user) => {
+  if (user.password) {
+    user.password = await bcrypt.hash(user.password, 10); // Хэшируем пароль при обновлении
+  }
+});
+
+// Связь с таблицей ролей
+User.hasOne(User, { as: 'Student', foreignKey: 'userId' });
+User.hasOne(User, { as: 'Teacher', foreignKey: 'userId' });
+// Здесь можно добавить для других ролей, если нужно.
 
 export default User;
