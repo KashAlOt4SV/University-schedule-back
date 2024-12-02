@@ -1,22 +1,38 @@
+// student.js
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/db.js'; // Импорт модели соединения с БД
+import sequelize from '../config/db.js'; // Подключение к БД
 
-// Модель студента для таблицы студентов
+// Модель для таблицы студентов
 const Student = sequelize.define('Student', {
   userId: {
     type: DataTypes.INTEGER,
     references: {
-      model: 'Users', // Название таблицы пользователей
+      model: 'User', // Название таблицы пользователей
       key: 'id',
     },
     allowNull: false,
   },
-  // Дополнительные поля, которые могут быть нужны
-  // Например, можно добавить поле даты рождения
-  birthDate: {
-    type: DataTypes.DATE,
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false, // Обязательное поле
+  },
+  // Здесь можно добавить дополнительные поля для студентов (например, курс)
+  group: {
+    type: DataTypes.STRING,
+    references: {
+      model: 'Group', // Название таблицы групп
+      key: 'name',
+    },
     allowNull: true,
   },
+  FIO:{
+    type: DataTypes.STRING,
+    references: {
+      model: 'User', // Название таблицы групп
+      key: 'fio',
+    },
+    allowNull: true,
+  }
 });
 
 Student.beforeCreate(async (admin) => {

@@ -1,10 +1,39 @@
 import Schedule from '../models/Schedule.js';
+import Group from '../models/Group.js';
+import Teacher from '../models/Teacher.js';
+import Discipline from '../models/Discipline.js';
 
-// Получение расписания
+// Получение расписания с данными из связанных таблиц
 export const getSchedule = async (req, res) => {
   try {
-    const schedule = await Schedule.findAll();
-    res.json(schedule);
+    const schedule = await Schedule.findAll({
+      include: [
+        {
+          model: Group, // Включаем группу
+          attributes: ['groupName'], // Мы хотим только поле 'name'
+        },
+        {
+          model: Teacher, // Включаем преподавателя
+          attributes: ['FIO'], // Мы хотим только поле 'fio'
+        },
+        {
+          model: Discipline, // Включаем дисциплину
+          attributes: ['name'], // Мы хотим только поле 'name'
+        },
+      ],
+    });
+
+    // Ответ с полями 'groupName', 'teacher' и 'discipline'
+    const formattedSchedule = schedule.map(item => {
+      return {
+        ...item.toJSON(),
+        groupName: item.Group?.name,
+        teacher: item.Teacher?.fio,
+        discipline: item.Discipline?.name,
+      };
+    });
+
+    res.json(formattedSchedule);
   } catch (err) {
     res.status(500).json({ message: 'Ошибка на сервере', error: err.message });
   }

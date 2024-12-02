@@ -2,45 +2,63 @@
 import { User, Student, Teacher, Schedule, Group, Discipline, ClassType } from '../models/index.js'; // Импортируем все модели из index.js
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import sequelize from "../config/db.js"; // Подключение к БД
 
 export const createUser = async (req, res) => {
-  const { fio, role, password, email } = req.body;
+  const { fio, email, password, role, group, specialties } = req.body;
 
-  if (!fio || !role || !password) {
-    return res.status(400).json({ message: 'Не все поля заполнены' });
-  }
+  const t = await sequelize.transaction(); // Начинаем транзакцию
 
   try {
-    // Проверяем существование пользователя с таким же ФИО
-    const existingUser = await User.findOne({ where: { fio } });
-    if (existingUser) {
-      return res.status(400).json({ message: 'Пользователь с таким ФИО уже существует' });
-    }
-
-    // Создаём пользователя в таблице users
-    const user = await User.create({ fio, role, password, email });
-
-    // В зависимости от роли создаем запись в таблице роли
-    if (role === 'Student') {
-      await Student.create({ UserId: user.id });
-    } else if (role === 'Teacher') {
-      await Teacher.create({ UserId: user.id });
-    }
-
-    res.status(201).json({
-      message: 'Пользователь успешно создан',
-      user: {
-        id: user.id,
-        fio: user.fio,
+    // Создаем пользователя
+    const newUser = await User.create(
+      {
+        fio,
+        email,
+        password,
         role,
-        email: user.email
       },
-    });
+      { transaction: t }
+    );
+
+    
+
+    // Проверяем роль и создаем запись в соответствующей таблице
+    if (role === 'teacher') {
+      await Teacher.create(
+        {
+          userId: newUser.id,
+          specialties,
+          email: newUser.email,
+          fio: newUser.fio
+        },
+        { transaction: t }
+      );
+    } else if (role === 'student') {
+      console.log('Creating student with email:', newUser.email); // Логирование для проверки
+      await Student.create(
+        {
+          userId: newUser.id,
+          group,
+          email: newUser.email,
+          fio: newUser.fio
+        },
+        { transaction: t }
+      );
+    }
+
+    // Подтверждаем транзакцию
+    await t.commit();
+
+    res.status(201).json({ message: 'User created successfully', user: newUser });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Ошибка при создании пользователя' });
+    // Если произошла ошибка, откатываем транзакцию
+    await t.rollback();
+    console.error('Error creating user:', error);
+    res.status(500).json({ message: 'Error creating user', error });
   }
 };
+
 
 
 export const getMe = async (req, res) => {

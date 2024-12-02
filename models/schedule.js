@@ -1,33 +1,57 @@
+// models/Schedule.js
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/db.js'; // Импорт соединения с БД
+import sequelize from '../config/db.js';
+import Group from './Group.js';
+import Teacher from './Teacher.js';
+import Discipline from './Discipline.js';
 
-// Модель расписания
 const Schedule = sequelize.define('Schedule', {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
-  },
-  groupName: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  subject: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  teacher: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
   dayOfWeek: {
-    type: DataTypes.ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'),
+    type: DataTypes.STRING,
     allowNull: false,
   },
   timeSlot: {
     type: DataTypes.STRING,
-    allowNull: false,  // Время проведения пары (например, 10:00 - 11:30)
+    allowNull: false,
+  },
+  groupId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: Group,
+      key: 'id',
+    },
+  },
+  disciplineId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: Discipline,
+      key: 'id',
+    },
+  },
+  teacherId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: Teacher,
+      key: 'id',
+    },
+  },
+  teacher: {  // Поле для FIO преподавателя (вычисляется триггером)
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  groupName: {  // Поле для имени группы (вычисляется триггером)
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  discipline: {  // Поле для названия дисциплины (вычисляется триггером)
+    type: DataTypes.STRING,
+    allowNull: true,
   },
 });
+
+// Устанавливаем ассоциации
+Schedule.belongsTo(Group, { foreignKey: 'groupId' });
+Schedule.belongsTo(Teacher, { foreignKey: 'teacherId' });
+Schedule.belongsTo(Discipline, { foreignKey: 'disciplineId' });
 
 export default Schedule;
