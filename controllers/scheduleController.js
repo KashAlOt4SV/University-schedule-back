@@ -1,7 +1,8 @@
-import Schedule from '../models/Schedule.js';
+import Schedule from '../models/schedule.js';
 import Group from '../models/Group.js';
 import Teacher from '../models/Teacher.js';
 import Discipline from '../models/Discipline.js';
+import { Op } from 'sequelize';
 
 // Получение расписания с данными из связанных таблиц
 export const getSchedule = async (req, res) => {
@@ -39,16 +40,61 @@ export const getSchedule = async (req, res) => {
   }
 };
 
-// Добавление нового расписания
 export const createSchedule = async (req, res) => {
-  const { day, time, groupId, disciplineId, teacherId, classType } = req.body;
+  const { dayOfWeek, timeSlot, groupId, disciplineId, teacherId, classType } = req.body;
+
   try {
-    const schedule = await Schedule.create({ day, time, groupId, disciplineId, teacherId, classType });
+    // Получаем связанные данные для группы, дисциплины и преподавателя
+    const group = await Group.findByPk(groupId);
+    const discipline = await Discipline.findByPk(disciplineId);
+    const teacher = await Teacher.findByPk(teacherId);
+
+    // Логируем найденные данные, чтобы удостовериться в их наличии
+    console.log('Group:', group);
+    console.log('Discipline:', discipline);
+    console.log('Teacher:', teacher);
+
+    if (!group || !discipline || !teacher) {
+      return res.status(400).json({
+        message: 'Не найдены данные для группы, дисциплины или преподавателя.'
+      });
+    }
+
+    // Проверяем, занята ли эта ячейка расписания
+    const existingSchedule = await Schedule.findOne({
+      where: {
+        dayOfWeek,
+        timeSlot,
+        [Op.or]: [
+          { groupId },
+          { teacherId }
+        ],
+      },
+    });
+
+    if (existingSchedule) {
+      return res.status(400).json({ message: 'Эта ячейка расписания уже занята для этой группы или преподавателя.' });
+    }
+
+    // Создаем новое расписание
+    const schedule = await Schedule.create({
+      dayOfWeek,
+      timeSlot,
+      groupId,
+      disciplineId,
+      teacherId,
+      classType
+    });
+
     res.status(201).json(schedule);
   } catch (err) {
+    console.error('Error:', err);  // Логируем ошибку
     res.status(500).json({ message: 'Ошибка на сервере', error: err.message });
   }
 };
+
+
+
 
 // Обновление расписания
 export const updateSchedule = async (req, res) => {

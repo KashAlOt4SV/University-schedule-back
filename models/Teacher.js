@@ -9,23 +9,23 @@ const Teacher = sequelize.define('Teacher', {
       model: 'Users',
       key: 'id',
     },
-    allowNull: false,
+    allowNull: false
   },
   email: {
     type: DataTypes.STRING,
-    allowNull: false,  // Поле email обязательно
+    allowNull: false,
   },
   FIO: {
     type: DataTypes.STRING,
-    allowNull: false,  // Поле FIO обязательно
+    allowNull: false,
   },
   specialties: {
     type: DataTypes.STRING,
     allowNull: true,
   },
   Disciplines: {
-    type: DataTypes.JSONB,  // Здесь мы храним данные как JSONB (массив дисциплин)
-    allowNull: true,  // Можно оставить пустым
+    type: DataTypes.JSONB,  // Поле будет хранить массив дисциплин в формате JSON
+    allowNull: true,
   },
 });
 

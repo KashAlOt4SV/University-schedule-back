@@ -12,6 +12,7 @@ export const getTeachers = async (req, res) => {
   }
 };
 
+// Обновление данных преподавателя
 export const updateTeacher = async (req, res) => {
   const { id } = req.params; // Получаем ID преподавателя
   const { fio, disciplines } = req.body; // Получаем данные для обновления
@@ -20,9 +21,7 @@ export const updateTeacher = async (req, res) => {
 
   try {
     // Находим преподавателя по ID
-    const teacher = await Teacher.findByPk(id, {
-      include: [Discipline]  // Загружаем дисциплины с преподавателем
-    });
+    const teacher = await Teacher.findByPk(id, { transaction: t });
 
     if (!teacher) {
       return res.status(404).json({ message: 'Преподаватель не найден' });
@@ -31,29 +30,12 @@ export const updateTeacher = async (req, res) => {
     // Обновляем ФИО
     teacher.FIO = fio || teacher.FIO;
 
-    // Если дисциплины переданы, обновляем их
-    if (disciplines && Array.isArray(disciplines)) {
-      // Получаем дисциплины по их названию
-      const disciplineInstances = await Discipline.findAll({
-        where: {
-          name: {
-            [Sequelize.Op.in]: disciplines  // Находим дисциплины по их названию
-          },
-        },
-        transaction: t  // Указываем транзакцию
-      });
-
-      // Если не все дисциплины существуют, возвращаем ошибку
-      if (disciplineInstances.length !== disciplines.length) {
-        return res.status(400).json({ message: 'Одна или несколько дисциплин не найдены' });
-      }
-
-      // Удаляем старые дисциплины и добавляем новые через таблицу связи
-      await teacher.setDisciplines([], { transaction: t });
-      await teacher.addDisciplines(disciplineInstances, { transaction: t });
+    // Обновляем дисциплины как строку
+    if (disciplines) {
+      teacher.Disciplines = disciplines;  // Сохраняем строку дисциплин
     }
 
-    // Сохраняем изменения
+    // Сохраняем изменения в БД
     await teacher.save({ transaction: t });
 
     // Подтверждаем транзакцию

@@ -12,9 +12,9 @@ export const getDisciplines = async (req, res) => {
 
 // Добавление новой дисциплины
 export const createDiscipline = async (req, res) => {
-  const { name, classTypes } = req.body;
+  const { name, classTypes, description } = req.body;
   try {
-    const discipline = await Discipline.create({ name, classTypes });
+    const discipline = await Discipline.create({ name, classTypes, description });
     res.status(201).json(discipline);
   } catch (err) {
     res.status(500).json({ message: 'Ошибка на сервере', error: err.message });
@@ -24,15 +24,18 @@ export const createDiscipline = async (req, res) => {
 // Обновление дисциплины
 export const updateDiscipline = async (req, res) => {
   const { id } = req.params;
-  const { name, classTypes } = req.body;
+  const { name, classTypes, description } = req.body;
 
   try {
     const discipline = await Discipline.findByPk(id);
     if (!discipline) {
       return res.status(404).json({ message: 'Дисциплина не найдена' });
     }
+
+    // Обновляем поля
     discipline.name = name;
-    discipline.classTypes = classTypes;
+    discipline.classTypes = classTypes;  // Сохраняем обновленные типы
+    discipline.description = description; // Описание
 
     await discipline.save();
     res.json(discipline);
