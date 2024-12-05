@@ -58,11 +58,6 @@ export const createSchedule = async (req, res) => {
     const discipline = await Discipline.findByPk(disciplineId);
     const teacher = await Teacher.findByPk(teacherId);
 
-    // Логируем найденные данные, чтобы удостовериться в их наличии
-    console.log('Group:', group);
-    console.log('Discipline:', discipline);
-    console.log('Teacher:', teacher);
-
     if (!group || !discipline || !teacher) {
       return res.status(400).json({
         message: 'Не найдены данные для группы, дисциплины или преподавателя.'
