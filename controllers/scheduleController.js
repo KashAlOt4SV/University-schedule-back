@@ -7,32 +7,41 @@ import { Op } from 'sequelize';
 // Получение расписания с данными из связанных таблиц
 export const getSchedule = async (req, res) => {
   try {
+    const { teacherId, groupId } = req.query;
+    let whereConditions = {};
+
+    if (teacherId) {
+      whereConditions.teacherId = teacherId;
+    }
+
+    if (groupId) {
+      whereConditions.groupId = groupId;
+    }
+
     const schedule = await Schedule.findAll({
+      where: whereConditions,
       include: [
         {
-          model: Group, // Включаем группу
-          attributes: ['groupName'], // Мы хотим только поле 'name'
+          model: Group,
+          attributes: ['groupName'],
         },
         {
-          model: Teacher, // Включаем преподавателя
-          attributes: ['FIO'], // Мы хотим только поле 'fio'
+          model: Teacher,
+          attributes: ['FIO'],
         },
         {
-          model: Discipline, // Включаем дисциплину
-          attributes: ['name'], // Мы хотим только поле 'name'
+          model: Discipline,
+          attributes: ['name'],
         },
       ],
     });
 
-    // Ответ с полями 'groupName', 'teacher' и 'discipline'
-    const formattedSchedule = schedule.map(item => {
-      return {
-        ...item.toJSON(),
-        groupName: item.Group?.name,
-        teacher: item.Teacher?.fio,
-        discipline: item.Discipline?.name,
-      };
-    });
+    const formattedSchedule = schedule.map(item => ({
+      ...item.toJSON(),
+      groupName: item.Group?.groupName,
+      teacher: item.Teacher?.FIO,
+      discipline: item.Discipline?.name,
+    }));
 
     res.json(formattedSchedule);
   } catch (err) {
@@ -93,21 +102,20 @@ export const createSchedule = async (req, res) => {
   }
 };
 
-
-
-
 // Обновление расписания
 export const updateSchedule = async (req, res) => {
   const { id } = req.params;
-  const { day, time, groupId, disciplineId, teacherId, classType } = req.body;
+  const { dayOfWeek, timeSlot, groupId, disciplineId, teacherId, classType } = req.body;
 
   try {
     const schedule = await Schedule.findByPk(id);
     if (!schedule) {
       return res.status(404).json({ message: 'Запись расписания не найдена' });
     }
-    schedule.day = day;
-    schedule.time = time;
+
+    // Обновление данных расписания
+    schedule.dayOfWeek = dayOfWeek;
+    schedule.timeSlot = timeSlot;
     schedule.groupId = groupId;
     schedule.disciplineId = disciplineId;
     schedule.teacherId = teacherId;
@@ -122,13 +130,25 @@ export const updateSchedule = async (req, res) => {
 
 // Удаление записи расписания
 export const deleteSchedule = async (req, res) => {
-  const { id } = req.params;
+  const { groupId, disciplineId, teacherId, timeSlot, dayOfWeek, classType } = req.query;  // Используем req.query, потому что передаем через параметры URL
 
   try {
-    const schedule = await Schedule.findByPk(id);
+    const schedule = await Schedule.findOne({
+      where: {
+        groupId,
+        disciplineId,
+        teacherId,
+        timeSlot,
+        dayOfWeek,
+        classType: classType || null,  // classType может быть null
+      }
+    });
+
     if (!schedule) {
       return res.status(404).json({ message: 'Запись расписания не найдена' });
     }
+
+    // Удаляем найденную запись
     await schedule.destroy();
     res.json({ message: 'Запись расписания удалена' });
   } catch (err) {

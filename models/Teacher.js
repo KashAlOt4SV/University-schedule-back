@@ -24,8 +24,8 @@ const Teacher = sequelize.define('Teacher', {
     allowNull: true,
   },
   Disciplines: {
-    type: DataTypes.JSONB,  // Поле будет хранить массив дисциплин в формате JSON
-    allowNull: true,
+    type: DataTypes.ARRAY(DataTypes.INTEGER),  // Поле будет хранить массив дисциплин в формате JSON
+    allowNull: true
   },
 });
 

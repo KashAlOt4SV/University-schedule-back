@@ -47,6 +47,10 @@ const Schedule = sequelize.define('Schedule', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  classType: {  // Тип занятия
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 });
 
 // Устанавливаем ассоциации
