@@ -8,6 +8,9 @@ export const createUser = async (req, res) => {
 
   const t = await sequelize.transaction(); // Начинаем транзакцию
 
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+
   try {
     // Логируем входные данные для отслеживания ошибок
     console.log('Received data:', { fio, email, password, role, group, specialties });
@@ -17,7 +20,7 @@ export const createUser = async (req, res) => {
       {
         fio,
         email,
-        password,
+        password:hashedPassword,
         role,
       },
       { transaction: t }

@@ -9,7 +9,7 @@ const router = express.Router();
 router.post('/login', login);
 
 // Создание пользователя
-router.post('/createUsers', authMiddleware , createUser);
+router.post('/createUsers' , createUser);
 
 // Получение информации о пользователе
 router.get('/me', authMiddleware, getMe);

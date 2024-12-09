@@ -2,6 +2,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/db.js';  // Подключение к БД
 import Teacher from './Teacher.js';
+import Student from './Student.js';
 
 const User = sequelize.define('User', {
   fio: {
@@ -23,13 +24,10 @@ const User = sequelize.define('User', {
   }
 });
 
-// Связь с таблицей Teacher
-User.hasOne(Teacher, { foreignKey: 'userId' });
+User.hasOne(Teacher, { foreignKey: 'userId', onDelete: 'CASCADE' });
 Teacher.belongsTo(User, { foreignKey: 'userId' });
 
-
-// Связь с таблицей ролей
-User.hasOne(User, { as: 'Student', foreignKey: 'userId' });
-// Здесь можно добавить для других ролей, если нужно.
+User.hasOne(Student, { foreignKey: 'userId', onDelete: 'CASCADE' });
+Student.belongsTo(User, { foreignKey: 'userId' });
 
 export default User;

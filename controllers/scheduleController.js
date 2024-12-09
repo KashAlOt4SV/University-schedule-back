@@ -63,6 +63,7 @@ export const createSchedule = async (req, res) => {
         message: 'Не найдены данные для группы, дисциплины или преподавателя.'
       });
     }
+    console.log(group, discipline, teacher)
 
     // Проверяем, занята ли эта ячейка расписания
     const existingSchedule = await Schedule.findOne({
