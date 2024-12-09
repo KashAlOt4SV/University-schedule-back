@@ -37,6 +37,79 @@ module.exports = {
       },
     });
 
+    await queryInterface.createTable('Groups', {
+      id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      groupName: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+    });
+
+    await queryInterface.createTable('Disciplines', {
+      id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      description: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      classTypes: {
+        type: Sequelize.JSONB,
+        allowNull: false,
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+    });
+
+    await queryInterface.createTable('ClassTypes', {
+      id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      type: {
+        type: Sequelize.ENUM('Лекция', 'Практическая работа', 'Лабораторная работа'),
+        allowNull: false,
+      },
+      description: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+    });
+
     // Создание таблицы Students
     await queryInterface.createTable('Students', {
       id: {
@@ -119,79 +192,6 @@ module.exports = {
       },
       disciplines: {
         type: Sequelize.ARRAY(Sequelize.INTEGER),
-        allowNull: true,
-      },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-    });
-
-    await queryInterface.createTable('Groups', {
-      id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-      },
-      groupName: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
-      },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-    });
-
-    await queryInterface.createTable('Disciplines', {
-      id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-      },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      description: {
-        type: Sequelize.TEXT,
-        allowNull: true,
-      },
-      classTypes: {
-        type: Sequelize.JSONB,
-        allowNull: false,
-      },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-    });
-
-    await queryInterface.createTable('ClassTypes', {
-      id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-      },
-      type: {
-        type: Sequelize.ENUM('Лекция', 'Практическая работа', 'Лабораторная работа'),
-        allowNull: false,
-      },
-      description: {
-        type: Sequelize.STRING,
         allowNull: true,
       },
       createdAt: {

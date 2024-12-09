@@ -2,7 +2,7 @@
 import { Sequelize } from 'sequelize';
 
 // Подключение к базе данных PostgreSQL через Sequelize
-const sequelize = new Sequelize('schedule', 'postgres', '17200407ashot', {
+const sequelize = new Sequelize('schedule_db', 'postgres', '17200407ashot', {
   host: 'localhost',
   dialect: 'postgres',
   logging: false,
