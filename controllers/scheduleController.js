@@ -2,6 +2,7 @@ import Schedule from '../models/schedule.js';
 import Group from '../models/Group.js';
 import Teacher from '../models/Teacher.js';
 import Discipline from '../models/Discipline.js';
+import Audience from '../models/Audince.js';
 import { Op } from 'sequelize';
 
 // Получение расписания с данными из связанных таблиц
@@ -50,7 +51,7 @@ export const getSchedule = async (req, res) => {
 };
 
 export const createSchedule = async (req, res) => {
-  const { dayOfWeek, timeSlot, groupId, disciplineId, teacherId, classType } = req.body;
+  const { dayOfWeek, timeSlot, groupId, disciplineId, teacherId, classType, audience } = req.body;
 
   try {
     // Получаем связанные данные для группы, дисциплины и преподавателя
@@ -88,7 +89,8 @@ export const createSchedule = async (req, res) => {
       groupId,
       disciplineId,
       teacherId,
-      classType
+      classType,
+      audience
     });
 
     res.status(201).json(schedule);
@@ -101,7 +103,7 @@ export const createSchedule = async (req, res) => {
 // Обновление расписания
 export const updateSchedule = async (req, res) => {
   const { id } = req.params;
-  const { dayOfWeek, timeSlot, groupId, disciplineId, teacherId, classType } = req.body;
+  const { dayOfWeek, timeSlot, groupId, disciplineId, teacherId, classType, audience } = req.body;
 
   try {
     const schedule = await Schedule.findByPk(id);
@@ -116,6 +118,7 @@ export const updateSchedule = async (req, res) => {
     schedule.disciplineId = disciplineId;
     schedule.teacherId = teacherId;
     schedule.classType = classType;
+    schedule.audience = audience;
 
     await schedule.save();
     res.json(schedule);
@@ -126,7 +129,7 @@ export const updateSchedule = async (req, res) => {
 
 // Удаление записи расписания
 export const deleteSchedule = async (req, res) => {
-  const { groupId, disciplineId, teacherId, timeSlot, dayOfWeek, classType } = req.query;  // Используем req.query, потому что передаем через параметры URL
+  const { groupId, disciplineId, teacherId, timeSlot, dayOfWeek, classType, audience } = req.query;  // Используем req.query, потому что передаем через параметры URL
 
   try {
     const schedule = await Schedule.findOne({
@@ -136,7 +139,7 @@ export const deleteSchedule = async (req, res) => {
         teacherId,
         timeSlot,
         dayOfWeek,
-        classType: classType || null,  // classType может быть null
+        classType: classType || null
       }
     });
 
@@ -149,5 +152,18 @@ export const deleteSchedule = async (req, res) => {
     res.json({ message: 'Запись расписания удалена' });
   } catch (err) {
     res.status(500).json({ message: 'Ошибка на сервере', error: err.message });
+  }
+};
+
+// Получение всех аудиторий
+export const getAudiences = async (req, res) => {
+  try {
+    const audiences = await Audience.findAll(); // Извлекаем все данные из таблицы Audiences
+    res.json(audiences); // Отправляем в формате JSON
+  } catch (error) {
+    res.status(500).json({
+      message: 'Ошибка при получении аудиторий',
+      error,
+    });
   }
 };
